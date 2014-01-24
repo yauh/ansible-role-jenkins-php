@@ -16,6 +16,8 @@
 - name: Install required tools 
   action: apt pkg={{ item }} state=latest
   with_items:
+      - apt
+      - git
       - openjdk-6-jdk
       - php5
       - php-pear
