@@ -16,12 +16,10 @@ The variables that can be passed to this role and a brief description about
 them are as follows.
 
 	jenkins:
-	  # repository that provides jenkins binaries and the corresponding key for debian
-	  deb:
-	    repo: 'deb http://pkg.jenkins-ci.org/debian binary/' # Jenkins repository
+	  deb:                                                         # Debian specific repository for Jenkins
+	    repo: 'deb http://pkg.jenkins-ci.org/debian binary/'       # Jenkins repository
 	    key: 'http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key' # Jenkins key
-	  # variables for php.ini that will be used for cli php
-	  php: 
+	  php:                                                         # PHP options for cli
 	    php_version: 5
 	    max_execution_time: 30
 	    max_input_time: 60
@@ -32,8 +30,12 @@ them are as follows.
 	    session_cookie_httponly: 1
 	    display_errors: Off
 	    error_reporting: E_ALL & ~E_DEPRECATED
-	    # where to download PHP frameworks to
-	    framework_directory: /var/www/
+        frameworks:
+           base_directory: /var/www/                              # directory to download PHP frameworks to
+           sources:
+              - name: Yii                                         # Name of framework
+                download_url: https://github.com/yiisoft/yii/releases/download/1.1.14/ # download URL for framework
+                filename: yii-1.1.14.f0fee9.tar.gz                # filename for framework archive
 
 Examples
 ========
