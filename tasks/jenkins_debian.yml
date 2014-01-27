@@ -104,5 +104,6 @@
 - wait_for: port={{ jenkins.port }} delay=30
 
 - command: java -jar jenkins-cli.jar -s http://localhost:{{ jenkins.port }} build "yii-sample-project"
+  ignore_errors: yes
 
 - file: path={{ ansible_env['PWD'] }}/jenkins-cli.jar state=absent
