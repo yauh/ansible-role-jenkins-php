@@ -25,7 +25,13 @@
   apt_repository: repo='{{ jenkins.deb.repo }}' state=present
 
 - name: Install Jenkins
-  apt: pkg=jenkins state=installed
+  apt: pkg=jenkins force=yes state=installed
+
+- name: Set Jenkins port
+  lineinfile: dest=/etc/default/jenkins regexp="^HTTP_PORT=" line="HTTP_PORT={{ jenkins.port }}" state=present
+
+- name: Let Jenkins know the new port by restarting
+  service: name=jenkins state=restarted
 
 - command: pear config-set auto_discover 1
 
@@ -64,16 +70,17 @@
  
 - name: Clean default.json file
   lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.*\(' state=absent
+
 - lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='\);' state=absent
 
 - name: Workaround for updates issues with CLI
   action: command chown -R jenkins:nogroup /var/lib/jenkins/updates
 
 - name: Get Jenkins cli
-  action: command wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+  action: command wget http://localhost:{{ jenkins.port }}/jnlpJars/jenkins-cli.jar
 
 - name: Get Jenkins plugins
-  action: command java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin git checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit
+  action: command java -jar jenkins-cli.jar -s http://localhost:{{ jenkins.port }} install-plugin git checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit
 
 - file: path=/var/lib/jenkins/jobs/yii-sample-project state=directory owner=jenkins
 
@@ -91,13 +98,11 @@
  
 - name: Legacy fix for old times' sake
   file: state=link src={{ jenkins.php.frameworks.base_directory }}yii-1.1.14.f0fee9 dest={{ jenkins.php.frameworks.base_directory }}yii
-  ignore_errors: True
  
 - service: name=jenkins state=restarted
  
-- wait_for: port=8080 delay=30
+- wait_for: port={{ jenkins.port }} delay=30
 
-- command: java -jar jenkins-cli.jar -s http://localhost:8080 build "yii-sample-project"
-  ignore_errors: True
+- command: java -jar jenkins-cli.jar -s http://localhost:{{ jenkins.port }} build "yii-sample-project"
 
 - file: path={{ ansible_env['PWD'] }}/jenkins-cli.jar state=absent

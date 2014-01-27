@@ -3,6 +3,7 @@ jenkins:
   deb:
     repo: 'deb http://pkg.jenkins-ci.org/debian binary/' # Jenkins repository
     key: 'http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key' # Jenkins key
+  port: 8080
   php: 
     php_version: 5
     max_execution_time: 30
