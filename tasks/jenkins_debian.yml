@@ -27,7 +27,7 @@
 - name: Install Jenkins
   apt: pkg=jenkins force=yes state=installed
 
-- name: Set Jenkins port
+- name: Set Jenkins port to {{ jenkins.port }}
   lineinfile: dest=/etc/default/jenkins regexp="^HTTP_PORT=" line="HTTP_PORT={{ jenkins.port }}" state=present
 
 - name: Let Jenkins know the new port by restarting
