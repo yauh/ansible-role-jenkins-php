@@ -57,6 +57,7 @@
        - pear.phpmd.org/PHP_PMD
        - pear.phpqatools.org/phpqatools
        - PHP_CodeSniffer
+       - -f pear.phpunit.de/phpdcd
   failed_when: "'No releases available for package' in pear_result.stdout"
 
 - name: fix for ubuntu only
