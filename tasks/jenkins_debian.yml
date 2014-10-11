@@ -1,7 +1,7 @@
 ---
 # file: roles/php-ci/tasks/jenkins_debian.yml
 
-- name: Install required tools 
+- name: Install required tools
   action: apt pkg={{ item }} state=latest
   with_items:
        - apt
@@ -17,10 +17,10 @@
        - php5-xdebug
        - python-pycurl
        - python-software-properties
-  
+
 - name: Add Jenkins apt-key
   action: apt_key url={{ jenkins.deb.key }} state=present
-  
+
 - name: Add Jenkins repository
   apt_repository: repo='{{ jenkins.deb.repo }}' state=present
 
@@ -47,28 +47,16 @@
   with_items:
        - -f pear.netpirates.net/phpDox
        - pear.symfony.com/Yaml
-       - --alldeps pear.phpunit.de/PHPUnit
-       - --alldeps pear.phpunit.de/DbUnit
-       - --alldeps pear.phpunit.de/phpcpd
-       - --alldeps pear.phpunit.de/phploc
-       - --alldeps pear.phpunit.de/PHPUnit_MockObject
-       - --alldeps pear.phpunit.de/PHPUnit_Selenium
-       - --alldeps pear.phpunit.de/PHPUnit_Story
        - pear.phpmd.org/PHP_PMD
        - pear.phpqatools.org/phpqatools
        - PHP_CodeSniffer
-       - -f pear.phpunit.de/phpdcd
   failed_when: "'No releases available for package' in pear_result.stdout"
 
-- name: fix for ubuntu only
-  action: command pear upgrade -f phpunit/phpunit_selenium
-  when: ansible_distribution in [ 'Ubuntu' ] 
-  
 - file: path=/var/lib/jenkins/updates state=directory owner=jenkins
- 
+
 - name: Workaround for updates issues with CLI
   action: command wget -O /var/lib/jenkins/updates/default.json http://updates.jenkins-ci.org/update-center.json
- 
+
 - name: Clean default.json file
   lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.*\(' state=absent
 
@@ -79,6 +67,9 @@
 
 - name: Get Jenkins cli
   action: command wget http://localhost:{{ jenkins.port }}/jnlpJars/jenkins-cli.jar
+
+- name: Update plugin info manually
+  action: "shell curl -L http://updates.jenkins-ci.org/update-center.json | sed '1d;$d' | curl -X POST -H 'Accept: application/json' -d @- http://localhost:{{ jenkins.port }}/updateCenter/byId/default/postBack"
 
 - name: Get Jenkins plugins
   action: command java -jar jenkins-cli.jar -s http://localhost:{{ jenkins.port }} install-plugin git checkstyle cloverphp dry htmlpublisher jdepend plot pmd violations xunit
@@ -96,12 +87,12 @@
   command: tar xzvf {{ item.filename }} -C {{ jenkins.php.frameworks.base_directory }}
   with_items:  jenkins.php.frameworks.sources
   when:  jenkins.php.frameworks.sources is defined
- 
+
 - name: Legacy fix for old times' sake
   file: state=link src={{ jenkins.php.frameworks.base_directory }}yii-1.1.14.f0fee9 dest={{ jenkins.php.frameworks.base_directory }}yii
- 
+
 - service: name=jenkins state=restarted
- 
+
 - wait_for: port={{ jenkins.port }} delay=30
 
 - command: java -jar jenkins-cli.jar -s http://localhost:{{ jenkins.port }} build "yii-sample-project"
