@@ -4,17 +4,18 @@
 - name: Install required tools 
   action: apt pkg={{ item }} state=latest
   with_items:
-       - apt
-       - git
-       - openjdk-6-jdk
-       - php5
-       - php-pear
-       - php5-xsl
-       - php5-dev
        - ant
+       - apt
        - curl
+       - git
+       - libpcre3-dev
+       - openjdk-6-jdk
+       - php-pear
+       - php5
        - php5-curl
+       - php5-dev
        - php5-xdebug
+       - php5-xsl
        - python-pycurl
        - python-software-properties
   
@@ -36,7 +37,7 @@
 - command: pear config-set auto_discover 1
 
 - name: PEAR updates and upgrades
-  command: pear {{ item }}
+  command: yes | pear {{ item }}
   with_items:
    - update-channels
    - upgrade-all
@@ -57,7 +58,6 @@
        - pear.phpmd.org/PHP_PMD
        - pear.phpqatools.org/phpqatools
        - PHP_CodeSniffer
-       - -f pear.phpunit.de/phpdcd
   failed_when: "'No releases available for package' in pear_result.stdout"
 
 - name: fix for ubuntu only
