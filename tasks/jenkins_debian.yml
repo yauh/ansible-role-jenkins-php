@@ -31,6 +31,19 @@
 - name: Set Jenkins port to {{ jenkins.port }}
   lineinfile: dest=/etc/default/jenkins regexp="^HTTP_PORT=" line="HTTP_PORT={{ jenkins.port }}" state=present
 
+- file: path=/var/lib/jenkins/updates state=directory owner=jenkins
+
+- name: Workaround for updates issues with CLI
+  get_url: url=http://updates.jenkins-ci.org/update-center.json dest=/var/lib/jenkins/updates/default.json 
+ 
+- name: Clean default.json file
+  lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.post\(' state=absent
+
+- lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='\);' state=absent
+
+- name: Workaround for updates issues with CLI
+  action: command chown -R jenkins:nogroup /var/lib/jenkins/updates
+
 - name: Let Jenkins know the new port by restarting
   service: name=jenkins state=restarted
 
@@ -64,19 +77,6 @@
 - name: fix for ubuntu only
   action: command pear upgrade -f phpunit/phpunit_selenium
   when: ansible_distribution in [ 'Ubuntu' ] 
-  
-- file: path=/var/lib/jenkins/updates state=directory owner=jenkins
- 
-- name: Workaround for updates issues with CLI
-  action: command wget -O /var/lib/jenkins/updates/default.json http://updates.jenkins-ci.org/update-center.json
- 
-- name: Clean default.json file
-  lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.post\(' state=absent
-
-- lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='\);' state=absent
-
-- name: Workaround for updates issues with CLI
-  action: command chown -R jenkins:nogroup /var/lib/jenkins/updates
 
 - name: Get Jenkins cli
   action: command wget http://localhost:{{ jenkins.port }}/jnlpJars/jenkins-cli.jar
