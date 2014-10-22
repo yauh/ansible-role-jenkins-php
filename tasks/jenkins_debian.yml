@@ -70,7 +70,7 @@
   action: command wget -O /var/lib/jenkins/updates/default.json http://updates.jenkins-ci.org/update-center.json
  
 - name: Clean default.json file
-  lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.*\(' state=absent
+  lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='updateCenter.post\(' state=absent
 
 - lineinfile: dest=/var/lib/jenkins/updates/default.json regexp='\);' state=absent
 
