@@ -36,11 +36,12 @@
 
 - command: pear config-set auto_discover 1
 
-- name: PEAR updates and upgrades
-  command: yes | pear {{ item }}
-  with_items:
-   - update-channels
-   - upgrade-all
+- name: PEAR updates 
+  command: pear update-channels
+
+- name: PEAR upgrades
+  shell: "yes | pear upgrade-all"
+  ignore_errors: True
 
 - name: PEAR installing modules
   command: pear install {{ item }}
